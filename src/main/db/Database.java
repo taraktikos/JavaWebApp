@@ -1,4 +1,4 @@
-package ua.org.taraktikos.study;
+package main.db;
 
 import java.io.InputStream;
 import java.sql.Connection;
@@ -6,26 +6,22 @@ import java.sql.DriverManager;
 import java.util.Properties;
 
 public class Database {
-    private static Database ourInstance = new Database();
 
-    public static Database getInstance() {
-        return ourInstance;
-    }
+    private static Connection connection = null;
 
-    private Database() {
-    }
-
-    Connection getConnection() {
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("config.properties");
+    public static Connection getConnection() {
+        if (connection != null) {
+            return connection;
+        }
+        InputStream inputStream = Database.class.getClassLoader().getResourceAsStream("config.properties");
         Properties properties = new Properties();
-        Connection connection = null;
         try {
             properties.load(inputStream);
             String url = "jdbc:postgresql://localhost/" + properties.getProperty("database");
             Class.forName(properties.getProperty("driver"));
             connection = DriverManager.getConnection(url, properties.getProperty("user"), properties.getProperty("password"));
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
         return connection;
     }

@@ -26,7 +26,10 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Maven: org.apache.tomcat:tomcat-jdbc:7.0.42" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.tomcat:tomcat-juli:7.0.42" level="project" />
     <orderEntry type="library" name="Maven: org.postgresql:postgresql:9.3-1102-jdbc41" level="project" />
     <orderEntry type="library" name="Maven: javax.servlet:servlet-api:2.5" level="project" />
+    <orderEntry type="library" name="Maven: jstl:jstl:1.2" level="project" />
   </component>
 </module>
