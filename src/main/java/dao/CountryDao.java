@@ -1,7 +1,7 @@
-package main.dao;
+package dao;
 
-import main.db.Database;
-import main.model.Country;
+import db.Database;
+import model.Country;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -81,10 +81,6 @@ public class CountryDao {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-
-    public List<Country> getAll() {
-        return getAll(null, null);
     }
 
     public List<Country> getAll(String name, String code) {

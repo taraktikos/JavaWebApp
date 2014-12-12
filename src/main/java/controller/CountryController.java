@@ -1,8 +1,8 @@
-package main.controller;
+package controller;
 
-import main.dao.CountryDao;
-import main.db.Database;
-import main.model.Country;
+import dao.CountryDao;
+import db.Database;
+import model.Country;
 import ua.org.taraktikos.study.DataLoader;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;

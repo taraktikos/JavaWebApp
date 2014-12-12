@@ -10,7 +10,7 @@
     <servlet>
         <display-name>CountryController</display-name>
         <servlet-name>CountryController</servlet-name>
-        <servlet-class>main.controller.CountryController</servlet-class>
+        <servlet-class>controller.CountryController</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>CountryController</servlet-name>
