@@ -1,7 +1,9 @@
 package main.controller;
 
 import main.dao.CountryDao;
+import main.db.Database;
 import main.model.Country;
+import ua.org.taraktikos.study.DataLoader;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -14,6 +16,8 @@ import java.util.Map;
 public class CountryController extends HttpServlet {
     private static String INSERT_OR_EDIT = "/country/form.jsp";
     private static String LIST = "/country/index.jsp";
+    private final String IMPORT_TEMPLATE = "/import/form.jsp";
+
     private CountryDao dao;
 
     public CountryController() {
@@ -24,7 +28,6 @@ public class CountryController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String forward;
         String action = request.getParameter("action");
-
         if (action.equalsIgnoreCase("delete")){
             int id = Integer.parseInt(request.getParameter("id"));
             dao.delete(id);
@@ -38,8 +41,18 @@ public class CountryController extends HttpServlet {
             request.setAttribute("errors", new HashMap<String, String>());
         } else if (action.equalsIgnoreCase("list")){
             forward = LIST;
-            request.setAttribute("countries", dao.getAll());
-        } else {
+            String filterName = request.getParameter("name");
+            String filterCode = request.getParameter("code");
+            request.setAttribute("countries", dao.getAll(filterName, filterCode));
+            request.setAttribute("filterName", filterName);
+            request.setAttribute("filterCode", filterCode);
+        } else if (action.equalsIgnoreCase("import")) {
+            if (request.getParameter("status") != null &&
+                    request.getParameter("status").equalsIgnoreCase("ok")) {
+                request.setAttribute("message", "Data imported");
+            }
+            forward = IMPORT_TEMPLATE;
+        } else{
             forward = INSERT_OR_EDIT;
         }
 
@@ -48,31 +61,53 @@ public class CountryController extends HttpServlet {
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Country model = new Country();
-        int id;
-        try {
-            id = Integer.parseInt(request.getParameter("id"));
-        } catch (NumberFormatException e) {
-            id = 0;
-        }
-        model.setId(id);
-        model.setName(request.getParameter("name"));
-        model.setCode(request.getParameter("code"));
-        model.setLongCode(request.getParameter("longCode"));
-        Map<String, String> errors = dao.validate(model);
+        String action = request.getParameter("action");
         RequestDispatcher view;
-        if (errors.size() == 0) {
-            if (model.getId() == 0) {
-                dao.add(model);
-            } else {
-                dao.update(model);
+        if (action.equalsIgnoreCase("import")){
+            try {
+                importData(request);
+                response.sendRedirect("CountryController?action=import&status=ok");
+            } catch (Exception e) {
+                request.setAttribute("error", e.getMessage());
+                view = request.getRequestDispatcher(IMPORT_TEMPLATE);
+                view.forward(request, response);
             }
-            response.sendRedirect("CountryController?action=list");
         } else {
-            view = request.getRequestDispatcher(INSERT_OR_EDIT);
-            request.setAttribute("errors", errors);
-            request.setAttribute("model", model);
-            view.forward(request, response);
+            Country model = new Country();
+            int id;
+            try {
+                id = Integer.parseInt(request.getParameter("id"));
+            } catch (NumberFormatException e) {
+                id = 0;
+            }
+            model.setId(id);
+            model.setName(request.getParameter("name"));
+            model.setCode(request.getParameter("code"));
+            model.setLongCode(request.getParameter("longCode"));
+            Map<String, String> errors = dao.validate(model);
+            if (errors.size() == 0) {
+                if (model.getId() == 0) {
+                    dao.add(model);
+                } else {
+                    dao.update(model);
+                }
+                response.sendRedirect("CountryController?action=list");
+            } else {
+                view = request.getRequestDispatcher(INSERT_OR_EDIT);
+                request.setAttribute("errors", errors);
+                request.setAttribute("model", model);
+                view.forward(request, response);
+            }
         }
+    }
+
+    private void importData(HttpServletRequest request) throws Exception {
+        String contentType = request.getContentType();
+        if(contentType != null && contentType.contains("multipart/form-data")) {
+            DataLoader dataLoader = new DataLoader(Database.getConnection());
+            dataLoader.load(request.getInputStream());
+            return;
+        }
+        throw new Exception("File Import Failed");
     }
 }

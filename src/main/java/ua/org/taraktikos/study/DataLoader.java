@@ -16,7 +16,7 @@ public class DataLoader {
         this.connection = connection;
     }
 
-    int load(InputStream inputStream) throws Exception {
+    public int load(InputStream inputStream) throws Exception {
         return load(inputStream, false);
     }
 
@@ -147,7 +147,6 @@ public class DataLoader {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            connection.close();
             if (ps != null) {
                 ps.close();
             }

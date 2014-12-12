@@ -10,7 +10,7 @@
     <c:param name="active" value="country"></c:param>
   </c:import>
     <div class="container">
-      <form role="form" action="CountryController" method="POST">
+      <form role="form" action="CountryController?action=country" method="POST">
         <input type="hidden" readonly="readonly" name="id" value="<c:out value="${model.id}" />" />
         <div class="form-group">
           <label for="input1">Name</label>

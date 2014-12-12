@@ -84,10 +84,39 @@ public class CountryDao {
     }
 
     public List<Country> getAll() {
+        return getAll(null, null);
+    }
+
+    public List<Country> getAll(String name, String code) {
+        if (name != null && name.isEmpty()) {
+            name = null;
+        }
+        if (code != null && code.isEmpty()) {
+            code = null;
+        }
         List<Country> countries = new ArrayList<>();
         try {
-            Statement statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery("SELECT * FROM country");
+            String query = "SELECT * FROM country";
+            if (name != null || code != null) {
+                query += " WHERE ";
+            }
+            if (name != null && code != null) {
+                query += "name LIKE ? and code LIKE ?";
+            } else if (name != null) {
+                query += "name LIKE ?";
+            } else if (code != null) {
+                query += "code LIKE ?";
+            }
+            PreparedStatement ps = connection.prepareStatement(query);
+            if (name != null && code != null) {
+                ps.setString(1, name + "%");
+                ps.setString(2, code + "%");
+            } else if (name != null) {
+                ps.setString(1, name + "%");
+            } else if (code != null) {
+                ps.setString(1, code + "%");
+            }
+            ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Country country = new Country();
                 country.setId(rs.getInt("id"));

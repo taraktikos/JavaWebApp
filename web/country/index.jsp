@@ -10,6 +10,22 @@
     <c:param name="active" value="country"></c:param>
   </c:import>
     <div class="container">
+      <div class="filter">
+        <form class="form-inline" role="form" action="CountryController">
+          <input type="hidden" name="action" value="list" />
+          <div class="form-group">
+            <div class="input-group">
+              <label class="sr-only" for="exampleInput1">Email address</label>
+              <input value="<c:out value="${filterName}" />" name="name" type="text" class="form-control" id="exampleInput1" placeholder="Name">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="sr-only" for="exampleInput2">Password</label>
+            <input value="<c:out value="${filterCode}" />" name="code" type="text" class="form-control" id="exampleInput2" placeholder="Code">
+          </div>
+          <button type="submit" class="btn btn-default">Search</button>
+        </form>
+      </div>
       <table class="table">
         <thead>
         <tr>
