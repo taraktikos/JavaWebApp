@@ -5,7 +5,9 @@ import main.model.Country;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CountryDao {
 
@@ -13,6 +15,30 @@ public class CountryDao {
 
     public CountryDao() {
         connection = Database.getConnection();
+    }
+
+    public Map<String, String> validate(Country country) {
+        Map<String, String> errors = new HashMap<>();
+        if (country.getName() == null || country.getName().isEmpty()) {
+            errors.put("name", "Name can't be empty");
+        } else if (getByNameCode(country.getName(), country.getCode()).getId() > 0 &&
+                getByNameCode(country.getName(), country.getCode()).getId() != country.getId()) {
+            errors.put("name", "Name and code must be unique");
+        }
+        if (country.getCode() == null || country.getCode().isEmpty()) {
+            errors.put("code", "Code can't be empty");
+        } else if (country.getCode().length() > 2) {
+            errors.put("code", "Code too long (allow 2 characters)");
+        }
+        if (country.getLongCode() == null || country.getLongCode().isEmpty()) {
+            errors.put("longCode", "Long code can't be empty");
+        } else if (country.getLongCode().length() > 3) {
+            errors.put("longCode", "Long code too long (allow 3 characters)");
+        } else if (getByLongCode(country.getLongCode()).getId() > 0 &&
+                getByLongCode(country.getLongCode()).getId() != country.getId()) {
+            errors.put("longCode", "Long code must be unique");
+        }
+        return errors;
     }
 
     public void add(Country country) {
@@ -82,6 +108,47 @@ public class CountryDao {
             PreparedStatement preparedStatement = connection.
                     prepareStatement("SELECT * FROM country where id=?");
             preparedStatement.setInt(1, id);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            if (rs.next()) {
+                country.setId(rs.getInt("id"));
+                country.setName(rs.getString("name"));
+                country.setCode(rs.getString("code"));
+                country.setLongCode(rs.getString("long_code"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return country;
+    }
+
+    public Country getByLongCode(String longCode) {
+        Country country = new Country();
+        try {
+            PreparedStatement preparedStatement = connection.
+                    prepareStatement("SELECT * FROM country where long_code=?");
+            preparedStatement.setString(1, longCode);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            if (rs.next()) {
+                country.setId(rs.getInt("id"));
+                country.setName(rs.getString("name"));
+                country.setCode(rs.getString("code"));
+                country.setLongCode(rs.getString("long_code"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return country;
+    }
+
+    public Country getByNameCode(String name, String code) {
+        Country country = new Country();
+        try {
+            PreparedStatement preparedStatement = connection.
+                    prepareStatement("SELECT * FROM country where name=? and code=?");
+            preparedStatement.setString(1, name);
+            preparedStatement.setString(2, code);
             ResultSet rs = preparedStatement.executeQuery();
 
             if (rs.next()) {
